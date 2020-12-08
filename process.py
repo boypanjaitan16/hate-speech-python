@@ -94,25 +94,31 @@ class Process:
                     positif = result[v]['positif']['total']
                     arrPos = result[v]['positif']['posisi']
                     arrNeg = result[v]['negatif']['posisi']
+                    dfNegatif   = result[v]['negatif']['df']
+                    dfPositif   = result[v]['positif']['df']
 
                     if val['type'] == 'negatif':
                         negatif += 1
                         if p not in arrNeg:
                             arrNeg.append(p)
+                            dfNegatif += 1
                     else:
                         positif += 1
                         if p not in arrPos:
                             arrPos.append(p)
+                            dfPositif += 1
 
                     result[v] = {
                         'term'	: v,
                         'total'		: 1 + result[v]['total'],
                         'posisi'	: excArray,
                         'negatif': {
+                            'df'        : dfNegatif,
                             'total' 	: negatif,
                             'posisi' 	: arrNeg
                         },
                         'positif': {
+                            'df'        : dfPositif,
                             'total'		: positif,
                             'posisi'	: arrPos
                         }
@@ -122,22 +128,32 @@ class Process:
                     positif	= 0
                     arrPos	= []
                     arrNeg	= []
+                    dfNegatif   = 0
+                    dfPositif   = 0
 
                     if val['type'] == 'negatif':
                         negatif += 1
-                        arrNeg.append("D " +str(index +1))
+                        dfNegatif += 1
+                        var  = "D " +str(index +1)
+                        arrNeg.append(var)
+
                     else:
                         positif += 1
-                        arrPos.append("D " +str(index +1))
+                        dfPositif += 1
+                        var  = "D " +str(index +1)
+                        arrPos.append(var)
+
                     result[v] = {
                         'term': v,
                         'total': 1,
                         'posisi': ["D " +str(index + 1)],
                         'negatif': {
+                            'df'        : dfNegatif,
                             'total' 	: negatif,
                             'posisi' 	: arrNeg
                         },
                         'positif': {
+                            'df'        : dfPositif,
                             'total'		: positif,
                             'posisi'	: arrPos
                         }

@@ -26,7 +26,7 @@ class DB:
         total   = len(self.mycursor.fetchall())
 
         if total < 1:
-            self.mycursor.execute("CREATE TABLE `"+self.tableName+"` (`type` varchar(255) NOT NULL, `term` varchar(255) NOT NULL,`total_negatif` int DEFAULT 0,`total_positif` int DEFAULT 0,`total_term` int DEFAULT 0, `n11` int DEFAULT 0, `n01` int DEFAULT 0, `n10` int DEFAULT 0, `n00` int DEFAULT 0, `n1_` int DEFAULT 0, `n1` int DEFAULT 0, `n0_` int DEFAULT 0, `n0` int DEFAULT 0, `mi` double DEFAULT 0, PRIMARY KEY (`term`, `type`))")
+            self.mycursor.execute("CREATE TABLE `"+self.tableName+"` (`term` varchar(255) NOT NULL,`total_negatif` int DEFAULT 0,`total_positif` int DEFAULT 0,`total_term` int DEFAULT 0, `df_positif` int DEFAULT 0, `df_negatif` int DEFAULT 0, `df_total` int DEFAULT 0, `n11` int DEFAULT 0, `n01` int DEFAULT 0, `n10` int DEFAULT 0, `n00` int DEFAULT 0, `mi` double DEFAULT 0, PRIMARY KEY (`term`))")
             self.populateData()
         else:
             print('none')
@@ -50,7 +50,7 @@ class DB:
 
         n   = totalNeg+totalPos
         for row in mi:
-            query       = "INSERT INTO "+self.tableName+" (type, term, total_negatif, total_positif, total_term, n11, n01, n10, n00, n1, n1_, n0, n0_, mi) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            query       = "INSERT INTO "+self.tableName+" (term, total_negatif, total_positif, total_term, df_positif, df_negatif, df_total, n11, n01, n10, n00, mi) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
             n11     = mi[row]['positif']['total']
             n01     = (totalPos - mi[row]['positif']['total'])
@@ -67,26 +67,9 @@ class DB:
             u       = (n00/n)*(process.cleanLog2((n*n00), (n0_*n0)))
             finalMI = r+s+t+u
 
-            valuesPos   = ('positif',row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], n11, n01, n10, n00, n1, n1_, n0, n0_, finalMI)
+            dfTotal     = (mi[row]['positif']['df'] + mi[row]['negatif']['df'])
+            valuesPos   = (row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], mi[row]['positif']['df'], mi[row]['negatif']['df'], dfTotal, n11, n01, n10, n00, finalMI)
             self.mycursor.execute(query, valuesPos)
-
-            n11     = mi[row]['negatif']['total']
-            n01     = (totalPos - mi[row]['negatif']['total'])
-            n10     = mi[row]['positif']['total']
-            n00     = (totalNeg - mi[row]['positif']['total'])
-            n1_     = n10+n11
-            n1      = n01+n11
-            n0_     = n01+n00
-            n0      = n10+n00
-
-            r       = (n11/n)*(process.cleanLog2((n*n11), (n1_*n1)))
-            s       = (n01/n)*(process.cleanLog2((n*n01), (n0_*n1)))
-            t       = (n10/n)*(process.cleanLog2((n*n10), (n1_*n0)))
-            u       = (n00/n)*(process.cleanLog2((n*n00), (n0_*n0)))
-            finalMI = r+s+t+u
-
-            valuesNeg   = ('negatif',row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], n11, n01, n10, n00, n1, n1_, n0, n0_, finalMI)
-            self.mycursor.execute(query, valuesNeg)
 
             self.mydb.commit()
 
@@ -104,15 +87,16 @@ class DB:
 
         per75   = math.ceil((75/100) * total)
 
-        self.mycursor.execute("SELECT * FROM "+self.tableName+" ORDER BY mutual_information DESC LIMIT "+str(per75))
+        self.mycursor.execute("SELECT * FROM "+self.tableName+" ORDER BY mi DESC LIMIT "+str(per75))
 
         fresh   = self.mycursor.fetchall()
 
         self.mycursor.execute('TRUNCATE TABLE '+self.tableName)
 
         for row in fresh:
-            query   = "INSERT INTO " + self.tableName + " (term, total, negatif, positif, mutual_information) VALUES (%s, %s, %s, %s, %s)"
-            values  = (row[0], row[1], row[2], row[3], row[4])
+            query       = "INSERT INTO "+self.tableName+" (term, total_negatif, total_positif, total_term, df_positif, df_negatif, df_total, n11, n01, n10, n00, mi) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+            values  = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11])
             self.mycursor.execute(query, values)
             self.mydb.commit()
 
