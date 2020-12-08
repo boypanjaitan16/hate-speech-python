@@ -10,12 +10,23 @@ class Process:
     fileInput   = "resources/data-to-learn.xlsx"
     fileOutput  = "output/learning-output.xlsx"
 
+    katabuang   = []
+
     def __init__(self):
         try:
             self.table = pd.read_excel(self.fileInput)
         except:
             print('file data-to-learn.xlsx tidak ditemukan pada direktori resources/')
             sys.exit(1)
+
+        try:
+            self.katabuang   = open("resources/stopword.txt")
+        except:
+            print('file stopword.txt tidak ditemukan pada direktori resources/')
+            sys.exit(1)
+        
+        self.katabuang   = self.katabuang.read()
+        self.katabuang   = self.katabuang.split("\n")
 
     def totalRows(self):
         return self.table.shape[0]
@@ -25,14 +36,6 @@ class Process:
         value = re.sub(r'\W+', " ", value)
         value = value.lower()
 
-        try:
-            katabuang   = open("resources/stopword.txt")
-        except:
-            print('file stopword.txt tidak ditemukan pada direktori resources/')
-            sys.exit(1)
-        
-        katabuang   = katabuang.read()
-        katabuang   = katabuang.split("\n")
         arrs        = value.split(" ")
 
         factory     = StemmerFactory()
@@ -45,7 +48,7 @@ class Process:
         narrs = []
 
         for v in arrs:
-            if v not in katabuang:
+            if v not in self.katabuang:
                 narrs.append(stemmer.stem(v))
 
         return narrs
@@ -141,6 +144,16 @@ class Process:
                     }
 
         return result
+
+    def cleanLog2(self, atas, bawah):
+        if bawah == 0:
+            return 0
+
+        if (atas/bawah) <= 0:
+            return 0
+
+        return math.log2(atas/bawah)
+
 
     def composeMI(self):
         data    = self.composeData()
