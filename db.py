@@ -52,20 +52,39 @@ class DB:
         for row in mi:
             query       = "INSERT INTO "+self.tableName+" (term, total_negatif, total_positif, total_term, df_positif, df_negatif, df_total, n11, n01, n10, n00, mi) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-            n11     = mi[row]['positif']['total']
-            n01     = (totalPos - mi[row]['positif']['total'])
-            n10     = mi[row]['negatif']['total']
-            n00     = (totalNeg - mi[row]['negatif']['total'])
-            n1_     = n10+n11
-            n1      = n01+n11
-            n0_     = n01+n00
-            n0      = n10+n00
+            n11pos     = mi[row]['positif']['total']
+            n01pos     = (totalPos - mi[row]['positif']['total'])
+            n10pos     = mi[row]['negatif']['total']
+            n00pos     = (totalNeg - mi[row]['negatif']['total'])
+            
+            n11neg     = mi[row]['negatif']['total']
+            n01neg     = (totalNeg - mi[row]['negatif']['total'])
+            n10neg     = mi[row]['positif']['total']
+            n00neg     = (totalPos - mi[row]['positif']['total'])
+            
+            n1_pos     = n10pos+n11pos
+            n1pos      = n01pos+n11pos
+            n0_pos     = n01pos+n00pos
+            n0pos      = n10pos+n00pos
+            
+            n1_neg     = n10neg+n11neg
+            n1neg      = n01neg+n11neg
+            n0_neg     = n01neg+n00neg
+            n0neg      = n10neg+n00neg            
+            
+            rpos       = (n11pos/n)*(process.cleanLog2((n*n11pos), (n1_pos*n1pos)))
+            spos       = (n01pos/n)*(process.cleanLog2((n*n01pos), (n0_pos*n1pos)))
+            tpos       = (n10pos/n)*(process.cleanLog2((n*n10pos), (n1_pos*n0pos)))
+            upos       = (n00pos/n)*(process.cleanLog2((n*n00pos), (n0_pos*n0pos)))
 
-            r       = (n11/n)*(process.cleanLog2((n*n11), (n1_*n1)))
-            s       = (n01/n)*(process.cleanLog2((n*n01), (n0_*n1)))
-            t       = (n10/n)*(process.cleanLog2((n*n10), (n1_*n0)))
-            u       = (n00/n)*(process.cleanLog2((n*n00), (n0_*n0)))
-            finalMI = r+s+t+u
+            rneg       = (n11neg/n)*(process.cleanLog2((n*n11neg), (n1_neg*n1neg)))
+            sneg       = (n01neg/n)*(process.cleanLog2((n*n01neg), (n0_neg*n1neg)))
+            tneg       = (n10neg/n)*(process.cleanLog2((n*n10neg), (n1_neg*n0neg)))
+            uneg       = (n00neg/n)*(process.cleanLog2((n*n00neg), (n0_neg*n0neg)))
+            
+            MIpos = rpos+spos+tpos+upos
+            MIneg = rneg+sneg+tneg+uneg
+            finalMI = MIpos if MIpos >= MIneg else MIneg
 
             dfTotal     = (mi[row]['positif']['df'] + mi[row]['negatif']['df'])
             valuesPos   = (row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], mi[row]['positif']['df'], mi[row]['negatif']['df'], dfTotal, n11, n01, n10, n00, finalMI)
