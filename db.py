@@ -86,8 +86,10 @@ class DB:
             MIneg = rneg+sneg+tneg+uneg
             finalMI = MIpos if MIpos >= MIneg else MIneg
 
-            dfTotal     = (mi[row]['positif']['df'] + mi[row]['negatif']['df'])
-            valuesPos   = (row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], mi[row]['positif']['df'], mi[row]['negatif']['df'], dfTotal, n11, n01, n10, n00, finalMI)
+            dfPos       = len(mi[row]['positif']['posisi'])
+            dfNeg       = len(mi[row]['negatif']['posisi'])
+            dfTotal     = (dfPos + dfNeg)
+            valuesPos   = (row, mi[row]['negatif']['total'], mi[row]['positif']['total'], mi[row]['total'], dfPos, dfNeg, dfTotal, n11pos, n01pos, n10pos, n00pos, finalMI)
             self.mycursor.execute(query, valuesPos)
 
             self.mydb.commit()

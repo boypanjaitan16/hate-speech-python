@@ -61,7 +61,7 @@ class Process:
         for i, val in enumerate(komentars):
             narrs   = self.cleanComment(val)
 
-            cleans.append({'term': narrs, 'type': types[i]})
+            cleans.append({'term': narrs, 'type': types[i], 'row': i})
 
         return cleans
 
@@ -83,9 +83,10 @@ class Process:
 
         for index, val in enumerate(words):
             for v in val['term']:
+                p = "D" + str(val['row'])
+
                 if v in result:
                     excArray = result[v]['posisi']
-                    p = "D" + str(index + 1)
 
                     if p not in excArray:
                         excArray.append(p)
@@ -94,31 +95,31 @@ class Process:
                     positif = result[v]['positif']['total']
                     arrPos = result[v]['positif']['posisi']
                     arrNeg = result[v]['negatif']['posisi']
-                    dfNegatif   = result[v]['negatif']['df']
-                    dfPositif   = result[v]['positif']['df']
+                    # dfNegatif   = result[v]['negatif']['df']
+                    # dfPositif   = result[v]['positif']['df']
 
                     if val['type'] == 'negatif':
                         negatif += 1
                         if p not in arrNeg:
                             arrNeg.append(p)
-                            dfNegatif += 1
+                            # dfNegatif += 1
                     else:
                         positif += 1
                         if p not in arrPos:
                             arrPos.append(p)
-                            dfPositif += 1
+                            # dfPositif += 1
 
                     result[v] = {
                         'term'	: v,
                         'total'		: 1 + result[v]['total'],
                         'posisi'	: excArray,
                         'negatif': {
-                            'df'        : dfNegatif,
+                            # 'df'        : dfNegatif,
                             'total' 	: negatif,
                             'posisi' 	: arrNeg
                         },
                         'positif': {
-                            'df'        : dfPositif,
+                            # 'df'        : dfPositif,
                             'total'		: positif,
                             'posisi'	: arrPos
                         }
@@ -128,32 +129,31 @@ class Process:
                     positif	= 0
                     arrPos	= []
                     arrNeg	= []
-                    dfNegatif   = 0
-                    dfPositif   = 0
+                    # dfNegatif   = 0
+                    # dfPositif   = 0
+                
 
                     if val['type'] == 'negatif':
                         negatif += 1
-                        dfNegatif += 1
-                        var  = "D " +str(index +1)
-                        arrNeg.append(var)
+                        # dfNegatif += 1
+                        arrNeg.append(p)
 
                     else:
                         positif += 1
-                        dfPositif += 1
-                        var  = "D " +str(index +1)
-                        arrPos.append(var)
+                        # dfPositif += 1
+                        arrPos.append(p)
 
                     result[v] = {
                         'term': v,
                         'total': 1,
-                        'posisi': ["D " +str(index + 1)],
+                        'posisi': [p],
                         'negatif': {
-                            'df'        : dfNegatif,
+                            # 'df'        : dfNegatif,
                             'total' 	: negatif,
                             'posisi' 	: arrNeg
                         },
                         'positif': {
-                            'df'        : dfPositif,
+                            # 'df'        : dfPositif,
                             'total'		: positif,
                             'posisi'	: arrPos
                         }
